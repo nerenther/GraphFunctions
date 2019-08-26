@@ -7,18 +7,25 @@ function Get-GraphTokenForApp
                 [Parameter(Mandatory=$True,HelpMessage="Found under Settings for your App and Keys")][string]$AppKey
                 )
     Begin {
+        Write-Progress "Getting token" -Id 1 -PercentComplete 10
+
         #Setting variables
+        Write-Progress -Activity "Setting variables for later use" -PercentComplete 20 -Id 2 -ParentId 1
         Write-Verbose "Setting variables"
+        
         $endpoint = "https://login.microsoftonline.com/$($TenantName)/oauth2/v2.0/token"
         $resources = "https://graph.microsoft.com"
         $grantType = "client_credentials"
         $scope = "https://graph.microsoft.com/.default"
         
+        Write-Progress -Activity "Setting variables for later use" -Id 2 -ParentId 1 -Completed
         }
 
     Process {
         #Composing body for rest call
+        Write-Progress -Activity "Composing body to be used for REST call" -PercentComplete 25 -Id 2 -ParentId 1
         Write-Verbose "Composing body for rest call"
+        
         $JSONBody = @{
             client_id = $ApplicationID
             client_secret = $AppKey
@@ -26,15 +33,27 @@ function Get-GraphTokenForApp
             grant_type = $granttype
             scope = $scope
             }
+        
+        Write-Progress -Activity "Composing body to be used for REST call" -Completed -Id 2 -ParentId 1
 
         #Invoking rest call
+        Write-Progress -Activity "Invoking REST call" -PercentComplete 30 -Id 2 -ParentId 1
         Write-Verbose "Invoking rest"
+        
         $RESTcall = Invoke-RestMethod -Method Post -Uri $endpoint -Body $JSONBody -ContentType 'application/x-www-form-urlencoded' -Headers @{'content_type' = 'application/x-www-form-urlencoded'}
-
+        
+        Write-Progress -Activity "Invoking REST call" -Completed -Id 2 -ParentId 1
         }
 
     End {
+        #Outputting object returned from Graph
+        Write-Progress -Activity "Outputting token" -Id 1 -PercentComplete 55
+        Write-Verbose "Outputting object from Graph"
+        
         $RESTcall
+        
+        Write-Progress -Activity "Outputting token" -Id 1 -Completed
+        Write-Verbose "All done"
         }
     
         
@@ -50,7 +69,7 @@ function Get-GraphTokenForApp
  .Parameter AppKey
   A secret key you generate for you app
   .Example
-  Get-MSGraphTokenForApp -TenantName "M365x789673.onmicrosoft.com" -ApplicationID "03cc1835-4dda-4de1-abdc-f61cec10cfe2" -AppKey "lzmwCUt44RyqcjuOnQUNPy5XeI6Y1Ghkp6awbxLEMfI="
+  Get-GraphTokenForApp -TenantName "M365x789673.onmicrosoft.com" -ApplicationID "03cc1835-4dda-4de1-abdc-f61cec10cfe2" -AppKey "lzmwCUt44RyqcjuOnQUNPy5XeI6Y1Ghkp6awbxLEMfI="
   Generates an access token for the application with the specified ID
  .Link
   http://cloud.kemta.net
